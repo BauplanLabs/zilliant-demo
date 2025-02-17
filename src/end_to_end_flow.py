@@ -4,10 +4,10 @@ import re
 from data_quality_tests import are_there_nulls, expect_column_values_to_be_unique
 
 
-def get_import_branch_name():
+def get_import_branch_name(branch_name: str):
     """Generate a unique branch name with timestamp."""
     timestamp = datetime.datetime.now().isoformat(timespec='seconds').replace(":", "_")
-    return f"ciro.zilliant_upload_{timestamp}"
+    return f"{branch_name}_{timestamp}"
 
 
 def extract_table_name(filename):
@@ -80,7 +80,8 @@ def from_raw_to_staging(
 
     """
     # Create a raw import branch with a timestamp in the name
-    raw_import_branch = get_import_branch_name()
+
+    raw_import_branch = get_import_branch_name(branch_name='ciro.zilliant_upload')
     bpln_client.create_branch(branch=raw_import_branch, from_ref='main')
     print(f"✅ Branch '{raw_import_branch}' created.")
 
@@ -139,7 +140,7 @@ def from_staging_to_applications(
         namespace: str,
 ):
     """
-    Runs the application pipeline from staging using Bauplan.
+    Runs the transformation pipeline from staging to the insight layer using Bauplan.
     Executes the pipeline located in pipeline_folder under the specified namespace,
     prints the resulting job state, and logs any errors encountered during execution.
 
@@ -153,13 +154,27 @@ def from_staging_to_applications(
 
     """
     try:
-        run_state = bpln_client.run(
-            project_dir=pipeline_folder,
-            namespace=namespace,
-        )
-        print(f'This is the result for {run_state.job_id}: {run_state}')
+        insight_branch = get_import_branch_name(branch_name='ciro.zilliant_insight_layer')
+        bpln_client.create_branch(branch=insight_branch, from_ref='main')
+        print(f"✅ Branch '{insight_branch}' created.")
     except bauplan.errors.BauplanError as e:
-        print(f'Something went wrong while running the pipeline: {e}')
+        print(f'Something went wrong while creting the transformation branch: {e}')
+    # run the transformation pipeline for the insight layer
+    run_state = bpln_client.run(
+        project_dir=pipeline_folder,
+        ref=insight_branch,
+        namespace=namespace,
+    )
+    print(f'This is the result for {run_state.job_id}: {run_state}')
+    if run_state.job_status.lower() == 'failed':
+        raise Exception(f"Pipeline {run_state.job_id} run failed: {run_state.job_status}")
+
+    # merge the branch of the insight layer into the main branch
+    try:
+        bpln_client.merge_branch(source_ref=insight_branch, into_branch='main')
+        print(f"✅ Branch '{insight_branch}' merged into main.")
+    except bauplan.errors.BauplanError as e:
+        print(f'🔴Error in branch {insight_branch} into main')
 
 
 def main():

@@ -50,9 +50,9 @@ def product_data_enriched(
     return data.append_column('llm_tags', [llm_tags])
 
 
-@bauplan.model()
+@bauplan.model(materialization_strategy='REPLACE')
 @bauplan.python('3.11', pip={'duckdb': '1.2.0'})
-def product_sales(
+def top_selling_products(
         transaction_line_item=bauplan.Model('zilliant.transaction_line_item'),
         product_data=bauplan.Model('product_data_enriched')
 ):
@@ -83,35 +83,6 @@ def product_sales(
         p.product_name, 
         p.sku, 
         p.category_name
-    """
-    ).arrow()
-
-    return results
-
-
-@bauplan.model(materialization_strategy='REPLACE')
-@bauplan.python('3.11', pip={'duckdb': '1.2.0'})
-def top_selling_products(
-        product_sales=bauplan.Model('zilliant.product_sales')
-):
-    """
-    Computes the total revenue per product and order the data in descending order by total revenue.
-
-    Output Table:
-    | product_name   | sku         | category_name   | total_units_sold | total_revenue |
-    |----------------|-------------|-----------------|------------------|---------------|
-    | <product name>| <sku>       | <category>      | <number>         | <number>      |
-    """
-    import duckdb
-
-    results = duckdb.sql("""
-     SELECT 
-        product_name,
-        sku,
-        category_name,
-        total_units_sold,
-        total_revenue
-    FROM product_sales
     ORDER BY total_revenue DESC
     """
     ).arrow()
@@ -122,7 +93,7 @@ def top_selling_products(
 @bauplan.model(materialization_strategy='REPLACE')
 @bauplan.python('3.11', pip={'duckdb': '1.2.0'})
 def top_selling_suppliers(
-        product_sales=bauplan.Model('zilliant.product_sales'),
+        top_selling_products=bauplan.Model('top_selling_products'),
         supplier_sku_lookup=bauplan.Model('zilliant.supplier_sku_lookup')
 ):
     """
@@ -142,7 +113,7 @@ def top_selling_suppliers(
      SELECT
         s.supplier_name,
         SUM(ps.total_revenue) AS total_supplier_revenue
-    FROM product_sales ps
+    FROM top_selling_products ps
     JOIN supplier_sku_lookup s ON ps.sku = s.sku
     GROUP BY s.supplier_name
     ORDER BY total_supplier_revenue DESC
