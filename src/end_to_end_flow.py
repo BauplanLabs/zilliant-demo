@@ -185,11 +185,11 @@ def main():
     namespace = 'zilliant'
     # Define the list of files that need to be imported as Iceberg tables
     list_of_files = [
-        #f"zilliant-demo-data-2025-02-12-account.csv",
+        f"zilliant-demo-data-2025-02-12-account.csv",
         f"zilliant-demo-data-2025-02-12-transaction_line_item.csv",
-        #f"zilliant-demo-data-2025-02-12-product_data.csv",
-        #f"zilliant-demo-data-2025-02-12-product_category.csv",
-        #f"zilliant-demo-data-2025-02-12-supplier_sku_lookup.csv",
+        f"zilliant-demo-data-2025-02-12-product_data.csv",
+        f"zilliant-demo-data-2025-02-12-product_category.csv",
+        f"zilliant-demo-data-2025-02-12-supplier_sku_lookup.csv",
     ]
     # import the raw data into the staging zone
     from_raw_to_staging(
