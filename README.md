@@ -70,6 +70,10 @@ parameters:
         default: kUg6q4141413...
         key: awskms:///arn:aws:kms:us-...
 ```
+### I don't have an OpenAI API token...can I skip the OpenAI step?
+Don't worry we got you covered. Go in the file `transformation_pipeline/models.py` and comment the entire function called `product_data_enriched` -  from line 4 to line 50.
+Then, go to the second function `top_selling_products`, comment line 57 and de-comment line 58.
+
 ## Run it
 ```bash
 cd src 
