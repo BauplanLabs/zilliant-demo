@@ -87,7 +87,7 @@ def from_raw_to_staging(
     # create a namespace
     if not bpln_client.has_namespace(namespace=namespace, ref=raw_import_branch):
         namespace = bpln_client.create_namespace(namespace=namespace, branch=raw_import_branch)
-        print(f"✅: Namespace 'zilliant' created successfully.")
+        print(f"✅: Namespace {namespace} created successfully.")
 
     # import the files as Icberg tables into the import branch
     for filename in list_of_tables_to_import:
@@ -182,7 +182,7 @@ def main():
     # Definte the source s3 location for the Raw data
     s3_source_folder = 's3://alpha-hello-bauplan/zilliant-synthetic-data/'
     # define namespace in the data catalog
-    namespace = 'zilliant'
+    namespace = 'zlt'
     # Define the list of files that need to be imported as Iceberg tables
     list_of_files = [
         f"zilliant-demo-data-2025-02-12-account.csv",

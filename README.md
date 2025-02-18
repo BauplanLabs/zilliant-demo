@@ -112,36 +112,36 @@ The process can be divided into **two main stages**:
 ### 📊 What Do We Get at the End?
 By the end of the process, we have **eight new tables** in the data lake:
 - **Imported tables:**
-    - `zilliant.account`
-    - `zilliant.product_category`
-    - `zilliant.product_data`
-    - `zilliant.supplier_sku_lookup`
-    - `zilliant.transaction_line_item`
+    - `zlt.account`
+    - `zlt.product_category`
+    - `zlt.product_data`
+    - `zlt.supplier_sku_lookup`
+    - `zlt.transaction_line_item`
 - **Transformed tables:**
-    - `zilliant.product_data_enriched`
-    - `zilliant.top_selling_products`
-    - `zilliant.top_selling_suppliers`
+    - `zlt.product_data_enriched`
+    - `zlt.top_selling_products`
+    - `zlt.top_selling_suppliers`
 You can verify the tables by running:
 ```bash
-bauplan table --namespace zilliant
+bauplan table --namespace zlt
 ```
 To explore the schema of the new tables run these commands in your terminal:
 ```bash
-bauplan table get zilliant.account
-bauplan table get zilliant.product_category
-bauplan table get zilliant.product_data
-bauplan table get zilliant.product_data_enriched
-bauplan table get zilliant.supplier_sku_lookup
-bauplan table get zilliant.top_selling_products
-bauplan table get zilliant.top_selling_suppliers
-bauplan table get zilliant.transaction_line_item
+bauplan table get zlt.account
+bauplan table get zlt.product_category
+bauplan table get zlt.product_data
+bauplan table get zlt.product_data_enriched
+bauplan table get zlt.supplier_sku_lookup
+bauplan table get zlt.top_selling_products
+bauplan table get zlt.top_selling_suppliers
+bauplan table get zlt.transaction_line_item
 ```
 
 ### 🔎 Exploring and Querying Data
 If you want to explore the final datasets, simply run:
 ```bash
-bauplan query "SELECT * FROM zilliant.product_data_enriched WHERE category_name == 'Retail'"
-bauplan query "SELECT * FROM zilliant.top_selling_suppliers"
+bauplan query "SELECT * FROM zlt.product_data_enriched WHERE category_name == 'Retail'"
+bauplan query "SELECT * FROM zlt.top_selling_suppliers"
 
 ```
 This pipeline sets the foundation for **web-based dashboards**, **integration with Snowflake**, and **other analytics tools**.
@@ -150,8 +150,8 @@ This pipeline sets the foundation for **web-based dashboards**, **integration wi
 To run the pipeline - i.e. the DAG going from the table imported to the final marts -- you just need to create a [data branch](https://docs.bauplanlabs.com/en/latest/concepts/branches.html).
 ```bash
 cd src/transformation_pipeline
-bauplan branch create <YOUR_USERNAME>.zilliant_dag
-bauplan branch checkout <YOUR_USERNAME>.zilliant_dag
+bauplan branch create <YOUR_USERNAME>.zlt_dag
+bauplan branch checkout <YOUR_USERNAME>.zlt_dag
 ```
 You can now run the DAG:
 ```bash
